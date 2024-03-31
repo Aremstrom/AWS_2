@@ -1,7 +1,12 @@
 import streamlit as st
 import boto3
+from dotenv import load_dotenv
 
 # Function to upload image to S3 bucket
+
+load_dotenv()
+
+
 def upload_image_to_s3(file, bucket_name):
     s3 = boto3.client('s3')
     try:
@@ -12,6 +17,8 @@ def upload_image_to_s3(file, bucket_name):
         return False
 
 # Function to fetch S3 bucket names
+
+
 def fetch_bucket_names():
     s3 = boto3.client('s3')
     response = s3.list_buckets()
@@ -19,11 +26,14 @@ def fetch_bucket_names():
     return bucket_names
 
 # Function to fetch image keys from S3 bucket
+
+
 def fetch_image_keys(bucket_name):
     s3 = boto3.client('s3')
     response = s3.list_objects_v2(Bucket=bucket_name)
     image_keys = [obj['Key'] for obj in response.get('Contents', [])]
     return image_keys
+
 
 def fetch_image_urls(bucket_name, expiry_time_hours=1):
     s3 = boto3.client('s3')
@@ -41,6 +51,8 @@ def fetch_image_urls(bucket_name, expiry_time_hours=1):
         image_urls.append((bucket_url + key, presigned_url))
 
     return image_urls
+
+
 def main():
     st.title("S3 Image Browser")
 
@@ -61,7 +73,7 @@ def upload_image_page():
 
     # Fetch S3 bucket names
     bucket_names = fetch_bucket_names()
-    
+
     # Dropdown to select S3 bucket
     selected_bucket = st.selectbox("Select S3 Bucket", bucket_names)
 
@@ -70,7 +82,8 @@ def upload_image_page():
 
     if uploaded_file is not None:
         # Display selected image
-        st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+        st.image(uploaded_file, caption="Uploaded Image",
+                 use_column_width=True)
 
         # Button to upload image to S3
         if st.button("Upload to S3"):
@@ -78,6 +91,7 @@ def upload_image_page():
                 st.success("Image uploaded to S3 successfully!")
             else:
                 st.error("Failed to upload image to S3.")
+
 
 def browse_images_page(bucket_names):
     st.header("Browse Images in S3 Bucket")
@@ -94,7 +108,8 @@ def browse_images_page(bucket_names):
 
         print(image_url)
         print(presigned_url)
-        st.image(presigned_url, caption=image_url, use_column_width=True)
+        st.image(image_url, caption=image_url, use_column_width=True)
+
 
 if __name__ == "__main__":
     main()
